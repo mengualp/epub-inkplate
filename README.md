@@ -2,6 +2,16 @@
 
 ## Last news
 
+(2026.07.24)
+
+Ahead of the scheduled October timeframe release, the user interface menu icons have been refreshed. Consequently, the `drawings.otf` font file has been updated. Please download the latest version [here](./SDCard/fonts/drawings.otf) and replace the existing file in your SDCard's fonts folder if you desire.
+
+Please find screenshots of the updated menus attached below.
+
+<img src="doc/pictures/dir-menu-options.png" alt="picture" width="300"/><img src="doc/pictures/ebook-reader-options-menu.png" alt="picture" width="300"/>
+
+Additionally, licensing information for all fonts used in this application is now available [here](./fonts/licensing.md) and will be included in the upcoming release.
+
 (2026.07.18)
 
 ## Version 3.0.0
