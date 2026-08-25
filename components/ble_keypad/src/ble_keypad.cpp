@@ -11,11 +11,10 @@
   #include "nimble/nimble_port_freertos.h"
   #include "host/ble_uuid.h"
 
-  #if TRACING_BLE_KEYPAD
-    #include <iostream>
-  #endif
+  #include <iostream>
 
   BLEKeypad *BLEKeypad::instance = nullptr;
+  int8_t BLEKeypad::tracing = 0;
 
   auto BLEKeypad::hexToInt(const char c) const -> uint8_t {
     if (c >= 'a' && c <= 'f') { return c - 'a' + 10; }
@@ -52,6 +51,14 @@
     }
 
     return true;
+  }
+
+  auto BLEKeypad::showPacket(std::string_view label, const uint8_t *data, size_t length) -> void {
+      std::cout << label;
+      for (size_t i = 0; i < length; i++) {
+        std::cout << std::format("{:02x} ", data[i]);
+      }
+      std::cout << std::endl;
   }
 
   // The processJ06ProPacket is taylored to the specific packet structures emitted by the TikTok Remote
@@ -113,13 +120,7 @@
       return;
     }
 
-    #if TRACING_BLE_KEYPAD
-      std::cout << "Packet: ";
-      for (size_t i = 0; i < length; i++) {
-        std::cout << std::format("{:02x} ", data[i]);
-      }
-      std::cout << std::endl;
-    #endif
+    if (tracing) showPacket("BLE Packet: ", data, length);
 
     Event event{ EventKind::NONE };
 
@@ -271,13 +272,7 @@
 
     Event event = { EventKind::NONE };
 
-    #if TRACING_BLE_KEYPAD
-      std::cout << "Packet: ";
-      for (size_t i = 0; i < length; i++) {
-        std::cout << std::format("{:02x} ", data[i]);
-      }
-      std::cout << std::endl;
-    #endif
+    if (tracing) showPacket("BLE Packet: ", data, length);
 
     DO {
       if (length == 2) {
@@ -360,11 +355,6 @@
       END_DO;
     }
 
-    #if TRACING_BLE_KEYPAD
-      LOG_I("Vertical Pressed State: {}", isVerticalPressed ? "Yes" : "No");
-      LOG_I("-------------------------------");
-    #endif
-
     if (event.kind != EventKind::NONE) {
       if (bleEventQueue) {
         xQueueSend(bleEventQueue, &event, 0);
@@ -372,6 +362,141 @@
         LOG_E("Event bleEventQueue not initialized. Unable to send event.");
       }
     }
+  }
+
+  // The processMuzhtenPacket is tailored to the mini keypad advertising itself as "MUZHTEN". It is
+  // sold under the Beauty-R1 name but emits a completely different set of HID reports, on two
+  // streams: a 4 bytes one for the arrow and select keys, a 2 bytes one for the home key. Every
+  // key press produces a burst of reports ending with a release report, recognized by a null first
+  // byte, that is unique to the key and stable from one press to the next. Only the release
+  // reports are decoded.
+  //
+  // Here are all the packets received for all available keys:
+  //
+  // Right Key:
+  // Packet: 02 52 61 18
+  // Packet: 02 52 01 19
+  // Packet: 03 52 61 18
+  // Packet: 03 36 61 18
+  // Packet: 03 c6 60 18
+  // Packet: 03 32 00 19
+  // Packet: 02 32 60 18
+  // Packet: 00 32 60 18
+  //
+  // Left Key:
+  // Packet: 02 96 60 18
+  // Packet: 03 96 00 19
+  // Packet: 03 c6 60 18
+  // Packet: 03 36 61 18
+  // Packet: 03 c2 01 19
+  // Packet: 02 c2 61 18
+  // Packet: 00 c2 61 18
+  //
+  // Up Key:
+  // Packet: 03 18 01 0d
+  // Packet: 03 18 41 12
+  // Packet: 03 18 c1 1c
+  // Packet: 03 18 41 27
+  // Packet: 03 22 c1 31
+  // Packet: 00 18 01 37
+  // Packet: 00 22 01 37
+  //
+  // Down key:
+  // Packet: 03 2c 01 30
+  // Packet: 03 18 e1 2a
+  // Packet: 03 2c a1 20
+  // Packet: 03 18 61 16
+  // Packet: 03 2c 21 0c
+  // Packet: 00 18 01 07
+  // Packet: 00 18 01 07
+  //
+  // Select key:
+  // Packet: 03 2c 81 1c
+  // Packet: 00 2c 81 1c
+  //
+  // Home key, on the 2 bytes stream:
+  // Packet: 01 00      (or 02 00)
+  // Packet: 00 00
+  //
+  // Home key, on the 4 bytes stream (left undecoded):
+  // Packet: 03 52 51 32
+  // Packet: 02 52 51 32
+  // Packet: 00 b5 51 32
+  //
+  // The keypad can be purchased through AliExpress:
+  //
+  // https://www.aliexpress.com/item/1005007944515439.html
+  //
+
+  auto BLEKeypad::processMuzhtenPacket(const uint8_t *data, size_t length) -> void {
+    if (data == nullptr) { return; }
+
+    if (tracing) showPacket("BLE Packet: ", data, length);
+
+    Event event{ EventKind::NONE };
+
+    if (length == 2) {
+      // Home key. The trailing 00 00 packet is ignored.
+      if ((data[0] == 1 || data[0] == 2) && data[1] == 0) {
+        event.kind = EventKind::DBL_SELECT;
+      }
+    } else if ((length == 4) && (data[0] == 0x00)) {
+      switch ((data[1] << 16) | (data[2] << 8) | data[3]) {
+      case 0x326018: event.kind = EventKind::NEXT;       break;   // Right key
+      case 0xC26118: event.kind = EventKind::PREV;       break;   // Left key
+      case 0x180137:
+      case 0x220137: event.kind = EventKind::DBL_PREV;   break;   // Up key
+      case 0x180107: event.kind = EventKind::DBL_NEXT;   break;   // Down key
+      case 0x2C811C: event.kind = EventKind::SELECT;     break;   // Select key
+      default:                                                    // Home key release and the
+        break;                                                    // intermediate reports
+      }
+    }
+
+    if (event.kind == EventKind::NONE) { return; }
+
+    // The up and down keys send their release report twice, up to 250 msecs apart. The other keys
+    // send a single one and are left untouched to keep page turns responsive.
+    if ((event.kind == EventKind::DBL_NEXT) || (event.kind == EventKind::DBL_PREV)) {
+      static EventKind lastKind{ EventKind::NONE };
+      static int64_t   lastTime{ 0 };
+
+      int64_t now = esp_timer_get_time();
+
+      if ((event.kind == lastKind) && ((now - lastTime) < 400000)) { return; }
+
+      lastKind = event.kind;
+      lastTime = now;
+    }
+
+    if (bleEventQueue) {
+      xQueueSend(bleEventQueue, &event, 0);
+    } else {
+      LOG_E("Event bleEventQueue not initialized. Unable to send event.");
+    }
+  }
+
+  // --- HID CHARACTERISTIC DISCOVERY LAUNCHER ---
+  // Runs on connection and again once the link is encrypted, as some keypads only expose
+  // their HID service to a bonded peer
+  auto BLEKeypad::discoverHidChars() -> int {
+    if (discoveryActive || hidFound) { return 0; }
+
+    ble_uuid16_t hidUuid = {
+      .u = { .type = BLE_UUID_TYPE_16 },
+      .value = HID_REPORT_CHAR_UUID
+    };
+
+    discoveryActive = true;
+
+    int rc = ble_gattc_disc_chrs_by_uuid(glConnId, 1, 0xffff, &hidUuid.u,
+                                         BLEKeypad::discoveryStub, nullptr);
+    if (rc != 0) {
+      discoveryActive = false;
+      LOG_E("GATT query initialization failure; rc={}", rc);
+    }
+
+    return rc;
   }
 
   // --- NIMBLE SCAN ENGINE MANAGER ---
@@ -402,15 +527,24 @@
   // --- NIMBLE CENTRAL GAP EVENT LOOP ---
   auto BLEKeypad::handleGapEvent(struct ble_gap_event *event) -> int {
     int rc;
+    struct ble_hs_adv_fields fields;
 
     switch (event->type) {
 
     case BLE_GAP_EVENT_DISC: {
-      #if TRACING_BLE_KEYPAD
-        if (event->disc.length_data > 0) {
-          LOG_I("BLE Device Info: {:<{}}", (char *)(event->disc.data), event->disc.length_data);
+      if (tracing) {
+        LOG_I("Found device! RSSI: {}, Data Length: {}", 
+                  event->disc.rssi, event->disc.length_data);
+
+        // 2. Safely parse the raw advertisement data payload into a readable helper struct
+        rc = ble_hs_adv_parse_fields(&fields, event->disc.data, event->disc.length_data);
+        if (rc == 0) {
+          // 3. Read specific data out of the parsed helper fields
+          if (fields.name_len > 0) {
+            LOG_I("Device Name: {}", std::string_view((const char *)fields.name, fields.name_len));
+          }
         }
-      #endif
+      }
 
       bool match = true;
 
@@ -429,6 +563,11 @@
           match = true;
           keypadType = KeypadType::BEAUTY_R1;
           LOG_I("Found Beauty-R1!");
+        } else if (data.contains("MUZHTEN")) {
+          // Sold as a Beauty-R1 but advertising the manufacturer name, with its own reports
+          match = true;
+          keypadType = KeypadType::MUZHTEN;
+          LOG_I("Found MUZHTEN keypad!");
         } else if (data.contains("J06 Pro")) {
           match = true;
           keypadType = KeypadType::J06_PRO;
@@ -485,17 +624,27 @@
         glConnId = event->connect.conn_handle;
         isConnecting = false;
 
-        ble_uuid16_t hidUuid = {
-          .u = { .type = BLE_UUID_TYPE_16 },
-          .value = HID_REPORT_CHAR_UUID
-        };
+        // ble_uuid16_t hidUuid = {
+        //   .u = { .type = BLE_UUID_TYPE_16 },
+        //   .value = HID_REPORT_CHAR_UUID
+        // };
 
-        // Ground-level discovery pass passing discoveryStub to register the endpoints
-        rc = ble_gattc_disc_chrs_by_uuid(glConnId, 1, 0xffff, &hidUuid.u,
-                                         BLEKeypad::discoveryStub, nullptr);
+        // Some keypads hide their HID service until the peer is bonded. Discovery is redone
+        // in BLE_GAP_EVENT_ENC_CHANGE once encryption is up.
+        rc = ble_gap_security_initiate(glConnId);
         if (rc != 0) {
-          LOG_E("GATT query initialization failure; rc={}", rc);
-        } else {
+          LOG_W("Unable to initiate BLE security; rc={}. Keeping the link unencrypted.", rc);
+        }
+        
+        // Ground-level discovery pass passing discoveryStub to register the endpoints
+        // rc = ble_gattc_disc_chrs_by_uuid(glConnId, 1, 0xffff, &hidUuid.u,
+        //                                  BLEKeypad::discoveryStub, nullptr);
+        // if (rc != 0) {
+        //   LOG_E("GATT query initialization failure; rc={}", rc);
+        // } else {
+        
+        rc = discoverHidChars();
+        if (rc == 0) {
           paired = true;
 
           Event event = { EventKind::PAIRING_ON };
@@ -519,6 +668,8 @@
       glConnId = BLE_HS_CONN_HANDLE_NONE;
       isConnecting = false;
       paired = false;
+      hidFound = false;
+      discoveryActive = false;
 
       Event event = { EventKind::PAIRING_OFF };
       if (bleEventQueue) {
@@ -535,10 +686,6 @@
       // Only process notifications coming from our connected remote device
       if (event->notify_rx.conn_handle == glConnId) {
 
-        #if TRACING_BLE_KEYPAD
-          LOG_D("Notification received on attribute handle {}", event->notify_rx.attr_handle);
-        #endif
-
         // Forward the raw memory payload straight into your static C++ bridging stub
         BLEKeypad::onNotifyStub(event->notify_rx.conn_handle,
                                 event->notify_rx.attr_handle,
@@ -551,10 +698,15 @@
     case BLE_GAP_EVENT_ENC_CHANGE: {
       if (event->enc_change.status == 0) {
         LOG_D("Security Encryption established successfully! Device is now secured & bonded.");
+        // A keypad gating its HID service behind encryption only reveals it now.
+        discoverHidChars();
       } else {
-        LOG_E("Security encryption negotiation failed; status={}", event->enc_change.status);
-        // If security fails, force a connection reset to clear bad state
-        ble_gap_terminate(glConnId, BLE_ERR_REM_USER_CONN_TERM);
+        // LOG_E("Security encryption negotiation failed; status={}", event->enc_change.status);
+        // // If security fails, force a connection reset to clear bad state
+        // ble_gap_terminate(glConnId, BLE_ERR_REM_USER_CONN_TERM);
+
+        // Not fatal: keypads exposing their HID service on a plain link keep working.
+        LOG_W("Security encryption negotiation failed; status={}", event->enc_change.status);
       }
       return 0;
     }
@@ -568,6 +720,7 @@
   // --- GATT CHARACTERISTIC PARSER LOOP ---
   auto BLEKeypad::handleDiscovery(const struct ble_gatt_chr *chr) -> void {
     if (chr->properties & BLE_GATT_CHR_PROP_NOTIFY) {
+      hidFound = true;
       LOG_W("Found valid HID Notification Handle at: {}. Activating stream...", chr->val_handle);
 
       uint16_t cccdHandle = chr->val_handle + 1;
@@ -607,6 +760,7 @@
 
     config.get(Config::Ident::BT_KEYPAD_MAC,  macAddr);
     config.get(Config::Ident::BT_KEYPAD_TYPE, &kType);
+    config.get(Config::Ident::BT_KEYPAD_TRACE, &tracing);
     keypadType = static_cast<KeypadType>(kType);
 
     if (macAddr.length() == 17) {

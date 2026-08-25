@@ -569,7 +569,7 @@
       if (httpServerStart() == ESP_OK) {
         esp_ip4_addr_t ip = wifi.getIpAddress();
         MsgViewer::show(MsgViewer::MsgType::WIFI, true, true, "Web Server",
-                        "The Web server is now running at ip " IPSTR ". To stop it, please " MSG
+                        "The Web server is now running at URL http://" IPSTR " . To stop it, please " MSG
                         ".",
                         IP2STR(&ip));
       } else {

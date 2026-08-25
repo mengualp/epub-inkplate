@@ -113,8 +113,7 @@
   "idf.toolsPath": "/home/turgu1/.espressif",
   "idf.currentSetup": "/home/turgu1/.espressif/v5.5.4/esp-idf",
   "idf.openOcdConfigs": [
-    "interface/ftdi/esp32_devkitj_v1.cfg",
-    "target/esp32.cfg"
+    "board/esp32-wrover-kit-3.3v.cfg"
   ],
   "idf.customExtraVars": {},
   "makefile.launchConfigurations": [
@@ -124,4 +123,10 @@
       "binaryArgs": []
     }
   ],
+  "clangd.path": "/home/turgu1/.espressif/tools/esp-clang/esp-19.1.2_20250312/esp-clang/bin/clangd",
+  "clangd.arguments": [
+    "--background-index",
+    "--query-driver=**",
+    "--compile-commands-dir=/home/turgu1/Dev/EPub-InkPlate/build"
+  ]
 }

@@ -2,6 +2,20 @@
 
 ## Last news
 
+(2026.08.24)
+
+A new version 3.0.1 is available for the following devices: 5V2, 6V2, and 10V2 with support added for the **MUZHTEN** BT-Keypad protocol (could be sold on AliExpress as a **Beauty-R1** but using a different protocol and advertisement). They are recognized as a distinct keypad and are now supported as well.
+
+Thanks to Marin Tadin (@mtadin) for the patch for the **MUZHTEN** BT-Keypad code, and Doug Foskey  (@guzzilemans4) for debugging support. 
+
+You will find them in the release **V3.0.1 Release of the EPub-InkPlate Application**
+
+|Inkplate device|From|Release filename|
+|:-------------:|:--:|----------------|
+|5 V2|Soldered|release-v3.0.1-inkplate_5v2.zip|
+|6 V2|Soldered|release-v3.0.1-inkplate_6v2.zip|
+|10 V2|Soldered|release-v3.0.1-inkplate_10v2.zip|
+
 (2026.07.24)
 
 Ahead of the scheduled October timeframe release, the user interface menu icons have been refreshed. Consequently, the `drawings.otf` font file has been updated. Please download the latest version [here](./SDCard/fonts/drawings.otf) and replace the existing file in your SDCard's fonts folder if you desire.

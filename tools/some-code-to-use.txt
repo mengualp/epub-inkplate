@@ -1,0 +1,64 @@
+#include "host/ble_hs_adv.h"
+#include "esp_log.h"
+
+#define TARGET_COMPANY_ID 0x02E5 // Example Company ID (Replace with your keypad's ID)
+
+void handle_legacy_protocol(const uint8_t *payload, uint8_t len) {
+    ESP_LOGI("KEYPAD", "Parsing layout version 1.0");
+    // e.g., payload[0] = Key Status, payload[1] = Battery
+}
+
+void handle_new_protocol(const uint8_t *payload, uint8_t len) {
+    ESP_LOGI("KEYPAD", "Parsing layout version 2.0");
+    // e.g., payload[0] = Protocol Version, payload[1] = Key Code, payload[2] = Counter
+}
+
+static int gap_event_handler(struct ble_gap_event *event, void *arg) {
+    struct ble_hs_adv_fields fields;
+    int rc;
+
+    switch (event->type) {
+        case BLE_GAP_EVENT_DISC:
+            // 1. Parse the advertisement data into fields
+            rc = ble_hs_adv_parse_fields(&fields, event->disc.data, event->disc.length_data);
+            if (rc != 0) {
+                return 0;
+            }
+
+            // 2. Verify Manufacturer Data is present and contains at least a Company ID (2 bytes)
+            if (fields.mfg_data != NULL && fields.mfg_data_len >= 2) {
+                
+                // BLE data is Little Endian; combine the first two bytes to get the Company ID
+                uint16_t company_id = fields.mfg_data[0] | (fields.mfg_data[1] << 8);
+
+                if (company_id == TARGET_COMPANY_ID) {
+                    // Extract the actual custom protocol payload (skipping the 2-byte Company ID)
+                    const uint8_t *protocol_payload = &fields.mfg_data[2];
+                    uint8_t payload_len = fields.mfg_data_len - 2;
+
+                    // 3. Print out the raw hexadecimal structure so you can map out the new protocol shifts
+                    ESP_LOGI("KEYPAD", "Keypad Found! Raw Payload Length: %d", payload_len);
+                    ESP_LOG_BUFFER_HEX("KEYPAD_BYTES", protocol_payload, payload_len);
+
+                    // 4. Handle changing software protocols on the fly
+                    // Strategy A: Route by a specific Version Byte if your new firmware uses one
+                    uint8_t protocol_version = protocol_payload[0]; 
+                    
+                    if (protocol_version == 0x02) {
+                        handle_new_protocol(protocol_payload, payload_len);
+                    } 
+                    // Strategy B: Fallback/Route by payload size if the layout expanded
+                    else if (payload_len == 4) { 
+                        handle_legacy_protocol(protocol_payload, payload_len);
+                    } else {
+                        ESP_LOGW("KEYPAD", "Unknown protocol or unexpected packet format received.");
+                    }
+                }
+            }
+            break;
+
+        default:
+            break;
+    }
+    return 0;
+}

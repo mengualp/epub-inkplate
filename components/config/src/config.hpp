@@ -17,20 +17,20 @@ enum class ConfigIdent {
   #if INKPLATE_6PLUS || INKPLATE_6PLUS_V2 || INKPLATE_6FLICK
     CALIB_A, CALIB_B, CALIB_C, CALIB_D, CALIB_E, CALIB_F, CALIB_DIVIDER,
   #endif
-  FONTS_DB, BATTERY_TRIM, COLUMN_COUNT, BT_KEYPAD_MAC, BT_KEYPAD_TYPE
+  FONTS_DB, BATTERY_TRIM, COLUMN_COUNT, BT_KEYPAD_MAC, BT_KEYPAD_TYPE, BT_KEYPAD_TRACE
 };
 
 #if INKPLATE_6PLUS || INKPLATE_6PLUS_V2 || INKPLATE_6FLICK
   #if DATE_TIME_RTC
-    using Config = ConfigBase<ConfigIdent, 36>;
+    using Config = ConfigBase<ConfigIdent, 37>;
   #else
-    using Config = ConfigBase<ConfigIdent, 33>;
+    using Config = ConfigBase<ConfigIdent, 34>;
   #endif
 #else
   #if DATE_TIME_RTC
-    using Config = ConfigBase<ConfigIdent, 29>;
+    using Config = ConfigBase<ConfigIdent, 30>;
   #else
-    using Config = ConfigBase<ConfigIdent, 26>;
+    using Config = ConfigBase<ConfigIdent, 27>;
   #endif
 #endif
 
@@ -64,6 +64,7 @@ enum class ConfigIdent {
   static int8_t            lineHeight;
   static int8_t            columnCount;
   static int8_t            btKeypadType;
+  static int8_t            btKeypadTrace;
 
   #if DATE_TIME_RTC
     static int8_t showRtc;
@@ -96,7 +97,8 @@ enum class ConfigIdent {
   static const double  defaultBatteryTrim     = 4.086 / 4.26;
   static const int8_t  defaultLineHeight      =  1; // 0 = TIGHT, 1 = MEDIUM, 2 = LARGE
   static const int8_t  defaultColumnCount     =  1; // 1 to 4
-  static const int8_t  defaultBtKeypadType  =  0; // 0 = NONE, 1 = Beauty_R1, 2 = J06_PRO
+  static const int8_t  defaultBtKeypadType    =  0; // 0 = NONE, 1 = Beauty_R1, 2 = J06_PRO, 3 = MUZHTEN
+  static const int8_t  defaultBtKeypadTrace   =  0; // 0 = NO TRACING, 1 = TRACING
 
   template <>
   Config::CfgType Config::cfg = { {
@@ -143,6 +145,7 @@ enum class ConfigIdent {
     { Config::Ident::COLUMN_COUNT,       Config::EntryType::BYTE,     "column_count",       &columnCount,     &defaultColumnCount,      0 },
     { Config::Ident::BT_KEYPAD_MAC,      Config::EntryType::STRING,   "bt_keypad_mac",      &btKeypadMac,     "00:00:00:00:00:00",     20 },
     { Config::Ident::BT_KEYPAD_TYPE,     Config::EntryType::BYTE,     "bt_keypad_type",     &btKeypadType,    &defaultBtKeypadType,     0 },
+    { Config::Ident::BT_KEYPAD_TRACE,    Config::EntryType::BYTE,     "bt_keypad_trace",    &btKeypadTrace,   &defaultBtKeypadTrace,    0 },
   } };
 
 

@@ -13,7 +13,7 @@ header-includes:
         % Title and Subtitle at the top
         {\Huge\bfseries EPub-InkPlate\par}
         \vspace{0.5cm}
-        {\Large User's Guide Version 3.0.0 \par}
+        {\Large User's Guide Version 3.0.1 \par}
         
         \vfill % Pushes everything below this to the center
         
@@ -26,12 +26,12 @@ header-includes:
         {\large\bfseries Prepared by: \par}
         {\large Guy Turcotte \par}
         \vspace{0.5cm}
-        {\large July 14, 2026 \par}
+        {\large August 25th, 2026 \par}
       \end{titlepage}
     }
 ---
 
-# EPub-InkPlate - User's Guide - Version 3.0.0
+# EPub-InkPlate - User's Guide - Version 3.0.1
 
 ### EPub-InkPlate: An EPub Reader for InkPlate Devices
 
@@ -167,6 +167,8 @@ The application supports two optional Bluetooth Low Energy (BLE) mini-keypad fea
 
 * **Beauty-R1**: https://www.aliexpress.com/item/1005007944515439.html
 * **J06 Pro**: https://www.aliexpress.com/item/1005011855666831.html
+
+The application provides full support for both available Beauty-R1 firmware options: **Beauty-R1** and **MUZHTEN**.
 
 \begin{center}
 Bluetooth BLE Keypads
@@ -308,7 +310,7 @@ The main application menu is displayed at the top of the screen. Each option is 
 * ![](pictures/icon-book.png){ width=15 } **Return to the last e-book being read** – Reopens the most recently read book at the last viewed page.
 * ![](pictures/icon-params.png){ width=15 } **Main parameters** – Opens the Main Parameters form to customize application behavior and system settings (detailed below).
 * ![](pictures/icon-font.png){ width=15 } **Default e-book parameters** – Opens the Default Parameters form to configure default font and image settings for book rendering (detailed below).
-* ![](pictures/icon-wifi.png){ width=15 } **WiFi access to the e-books folder** – Connects to Wi-Fi and launches a local web server, enabling you to manage books on the SD card (upload, download, or delete) via a standard web browser. Pressing any key stops the server, closes the Wi-Fi connection, and reboots the device. *Note: Power-saving modes (light and deep sleep) are disabled while the web server is running.*
+* ![](pictures/icon-wifi.png){ width=15 } **WiFi access to the e-books folder** – Connects to Wi-Fi and launches a local web server, enabling you to manage books on the SD card (upload, download, or delete) via a standard web browser. Pressing any key stops the server, closes the Wi-Fi connection, and reboots the device. *Note: Power-saving modes (light and deep sleep) are disabled while the web server is running.* Hint: use http mode only, not https!
 * ![](pictures/icon-refresh.png){ width=15 } **Refresh the e-books list** – Manually reindexes the books database. This process runs automatically at startup and is rarely required manually. *Note: This action re-scans every book, which can take 5 to 10 seconds per file.*
 * ![](pictures/icon-clr-history.png){ width=15 } **Clear e-books' read history** – Erases all tracking data, including current page progress and priority placement at the top of the library list. This action does not delete the book files.
 * ![](pictures/icon-time.png){ width=15 } **Set Date/Time** – Opens a manual configuration form to set the local system date and time.
@@ -388,7 +390,7 @@ The action menu is displayed at the top of the screen. Each function is represen
 * ![](pictures/icon-font.png){ width=15 } **Current e-book parameters** – Opens a custom configuration form to adjust font and image rendering settings exclusively for this book. These preferences are saved in a localized `.pars` file on the SD card.
 * ![](pictures/icon-revert.png){ width=15 } **Revert e-book parameters to default values** – Clears book-specific settings and restores formatting parameters to global application defaults.
 * ![](pictures/icon-delete.png){ width=15 } **Delete the current e-book** – Completely removes the active book and its companion data files from the SD card. A confirmation dialog will prompt you to verify the action; press **SELECT** to confirm or any other button to cancel.
-* ![](pictures/icon-wifi.png){ width=15 } **WiFi access to the e-books folder** – Connects to Wi-Fi and launches a local web server, enabling you to manage books on the SD card (upload, download, or delete) via a standard web browser. Pressing any key stops the server, closes the Wi-Fi connection, and reboots the device. *Note: Power-saving modes (light and deep sleep) are disabled while the web server is running.*
+* ![](pictures/icon-wifi.png){ width=15 } **WiFi access to the e-books folder** – Connects to Wi-Fi and launches a local web server, enabling you to manage books on the SD card (upload, download, or delete) via a standard web browser. Pressing any key stops the server, closes the Wi-Fi connection, and reboots the device. *Note: Power-saving modes (light and deep sleep) are disabled while the web server is running.* Hint: use http mode only, not https!
 * ![](pictures/icon-info.png){ width=10 } **About the EPub-InkPlate application** – Displays system information, including the application version and developer credits.
 * ![](pictures/icon-poweroff.png){ width=15 } **Power OFF (Deep Sleep)** – Suspends the device into a low-power Deep Sleep mode. Press any button to wake and reboot.
 

@@ -388,7 +388,12 @@ auto ConfigBase<IdType, cfg_size>::save(bool force) -> bool {
         }
       }
 
-      file << "# ---\n\n";
+      file << 
+        "#\n"
+        "# The bt_keypad_type values are: 0 = none, 1 = Beauty-R1, 2 = J06 Pro, 3 = MUZHTEN.\n"
+        "# Both bt_keypad values are set automatically when a supported keypad is\n"
+        "# discovered. Set them by hand only if automatic discovery fails.\n"
+        "# ---\n\n";
     }
 
     for (auto &entry : cfg) {
