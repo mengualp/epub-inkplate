@@ -86,16 +86,16 @@ Various application distributions are supplied to support each of the input conf
 
 |Inkplate device|Input Configuration|Release filename|
 |:-------------:|:--:|----------------|
-|6|Tactile Buttons|release-v3.0.0-inkplate_6.zip|
-|6|Extension Board|release-v3.0.0-inkplate_6_ext.zip|
-|10|Tactile Buttons|release-v3.0.0-inkplate_10.zip|
-|10|Extension Board|release-v3.0.0-inkplate_10_ext.zip|
-|6PLUS|Touchscreen|release-v3.0.0-inkplate_6plus.zip|
-|6PLUS V2|Touchscreen|release-v3.0.0-inkplate_6plusv2.zip|
-|6FLICK|Touchscreen|release-v3.0.0-inkplate_6flick.zip|
-|5 V2|BLE Mini Keypad|release-v3.0.0-inkplate_5v2.zip|
-|6 V2|BLE Mini Keypad|release-v3.0.0-inkplate_6v2.zip|
-|10 V2|BLE Mini Keypad|release-v3.0.0-inkplate_10v2.zip|
+|6|Tactile Buttons|release-v*version*-inkplate_6.zip|
+|6|Extension Board|release-v*version*-inkplate_6_ext.zip|
+|10|Tactile Buttons|release-v*version*-inkplate_10.zip|
+|10|Extension Board|release-v*version*-inkplate_10_ext.zip|
+|6PLUS|Touchscreen|release-v*version*-inkplate_6plus.zip|
+|6PLUS V2|Touchscreen|release-v*version*-inkplate_6plusv2.zip|
+|6FLICK|Touchscreen|release-v*version*-inkplate_6flick.zip|
+|5 V2|BLE Mini Keypad|release-v*version*-inkplate_5v2.zip|
+|6 V2|BLE Mini Keypad|release-v*version*-inkplate_6v2.zip|
+|10 V2|BLE Mini Keypad|release-v*version*-inkplate_10v2.zip|
 
 ### Core Functions and Gestures
 
@@ -165,15 +165,15 @@ The Inkplate 6PLUS, 6PLUSV2, and 6FLICK devices utilize a capacitive touchscreen
 
 The application supports two optional Bluetooth Low Energy (BLE) mini-keypad featuring six physical buttons. They are currently the only supported BLE accessories and can be purchased on AliExpress:
 
-* **Beauty-R1**: https://www.aliexpress.com/item/1005007944515439.html
+* **Beauty-R1** or **Muzhten**: https://www.aliexpress.com/item/1005007944515439.html
 * **J06 Pro**: https://www.aliexpress.com/item/1005011855666831.html
 
-The application provides full support for both available Beauty-R1 firmware options: **Beauty-R1** and **MUZHTEN**.
+The application provides full support for both available Beauty-R1 device firmware options: **Beauty-R1** and **MUZHTEN**.
 
 \begin{center}
 Bluetooth BLE Keypads
 \end{center}
-| Beauty-R1 | J06 Pro |
+| Beauty-R1 / Muzhten | J06 Pro |
 |:-----------:|:-----------:|
 |![](pictures/ble-mini-keypad.png){ width=40% }|![](pictures/j06-pro.png){ width=40% }|
 
@@ -185,10 +185,10 @@ The six physical keys map to the following software functions:
 * **Right Arrow:** **NEXT**
 * **Up Arrow:** **PREVIOUS-2** / **UP**
 * **Down Arrow:** **NEXT-2** / **DOWN**
-* For the Beauty-R1 - **Bottom Button:** **HOME**
+* For the Beauty-R1 / Muzhten - **Bottom Button:** **HOME**
 * For the J06 Pro - **Bottom Right Button:** **HOME**
 
-For the **Beauty-R1**:
+For the **Beauty-R1** / **Muzhten** :
 
 * On the right, the switch is for power ON/OFF.
 

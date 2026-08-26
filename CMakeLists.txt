@@ -17,7 +17,7 @@ set(DEVICE "INKPLATE_10_V2")
 # set(REGRESSION_TEST 1)
 endif()
 
-set(APP_VERSION "3.0.0")
+set(APP_VERSION "3.0.1")
 
 set(IDF_TARGET esp32)
 

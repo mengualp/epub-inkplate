@@ -14,7 +14,7 @@
 // #pragma GCC diagnostic error "-Wframe-larger-than=10"
 
 #ifndef APP_VERSION
-  #define APP_VERSION "3.0.0"
+  #define APP_VERSION "3.0.1"
 #endif
 
 #if !(EPUB_LINUX_BUILD || EPUB_INKPLATE_BUILD)
